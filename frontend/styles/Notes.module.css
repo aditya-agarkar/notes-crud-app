@@ -1,0 +1,442 @@
+/* Container and Layout */
+.container {
+  min-height: 100vh;
+  background-color: #f8fafc;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Header Section */
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  color: white;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.title {
+  font-size: 2.5rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: bold;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* Search Section */
+.searchContainer {
+  margin-bottom: 2rem;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 25px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.searchInput:focus {
+  border-color: #4299e1;
+}
+
+/* Form Section */
+.formContainer {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 15px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.formTitle {
+  color: #2d3748;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Form Controls */
+.input {
+  padding: 12px 15px;
+  font-size: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.input:focus {
+  border-color: #4299e1;
+}
+
+.textarea {
+  padding: 12px 15px;
+  font-size: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.textarea:focus {
+  border-color: #4299e1;
+}
+
+/* Buttons */
+.primaryButton {
+  background-color: #4299e1;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.primaryButton:hover {
+  background-color: #3182ce;
+}
+
+.secondaryButton {
+  background-color: #e2e8f0;
+  color: #4a5568;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.secondaryButton:hover {
+  background-color: #cbd5e0;
+}
+
+/* Notes Section */
+.notesSection {
+  margin-top: 2rem;
+}
+
+.sectionTitle {
+  color: #2d3748;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem;
+  background-color: white;
+  border-radius: 15px;
+  color: #718096;
+}
+
+/* Notes Table */
+.notesTable {
+  background-color: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.tableHeader {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: grid;
+  grid-template-columns: 2fr 3fr 150px 120px;
+  gap: 20px;
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tableBody {
+  display: flex;
+  flex-direction: column;
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: 2fr 3fr 150px 120px;
+  gap: 20px;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.tableRow:hover {
+  background-color: #f8fafc;
+}
+
+.tableRow:last-child {
+  border-bottom: none;
+}
+
+.noteTitle {
+  margin: 0;
+  color: #2d3748;
+  font-size: 1rem;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.notePreview {
+  color: #4a5568;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.noteDate {
+  color: #718096;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+/* Create Note Button */
+.createNoteButton {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(72, 187, 120, 0.3);
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.createNoteButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(72, 187, 120, 0.4);
+}
+
+/* Note Actions */
+.noteActions {
+  display: flex;
+  gap: 8px;
+}
+
+.actionButton {
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.viewButton {
+  background-color: #48bb78;
+}
+
+.viewButton:hover {
+  background-color: #38a169;
+  transform: scale(1.05);
+}
+
+.editButton {
+  background-color: #ed8936;
+}
+
+.editButton:hover {
+  background-color: #dd6b20;
+  transform: scale(1.05);
+}
+
+.deleteButton {
+  background-color: #f56565;
+}
+
+.deleteButton:hover {
+  background-color: #e53e3e;
+  transform: scale(1.05);
+}
+
+/* Note Content */
+.noteContent {
+  margin-bottom: 1rem;
+}
+
+.noteText {
+  color: #4a5568;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.noteFooter {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1rem;
+}
+
+.noteDate {
+  color: #718096;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modalContent {
+  background-color: white;
+  border-radius: 15px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: auto;
+  box-shadow: 0 20px 25px rgba(0,0,0,0.1);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modalTitle {
+  margin: 0;
+  color: #2d3748;
+  font-size: 1.5rem;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.closeButton:hover {
+  background-color: #f7fafc;
+}
+
+.modalBody {
+  padding: 1.5rem;
+}
+
+.modalText {
+  color: #4a5568;
+  line-height: 1.6;
+  margin: 0 0 1rem 0;
+  white-space: pre-wrap;
+}
+
+.modalDate {
+  color: #718096;
+}
+
+.modalForm {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .title {
+    font-size: 2rem;
+  }
+  
+  .tableHeader,
+  .tableRow {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .tableHeader {
+    display: none; /* Hide header on mobile */
+  }
+  
+  .tableRow {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .modalContent {
+    margin: 10px;
+    max-width: calc(100vw - 20px);
+  }
+  
+  .noteActions {
+    align-self: flex-end;
+    gap: 4px;
+  }
+  
+  .noteDate {
+    font-size: 0.75rem;
+  }
+}
