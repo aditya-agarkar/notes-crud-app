@@ -129,38 +129,39 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1 className={styles.title}>📝 My Notes</h1>
-        <p className={styles.subtitle}>Organize your thoughts and ideas</p>
+        <h1 className={styles.title}>Notes</h1>
+        <p className={styles.subtitle}>Organize your ideas</p>
       </header>
 
-      {/* Search Bar */}
-      <div className={styles.searchContainer}>
-        <input
-          type="text"
-          placeholder="🔍 Search notes..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className={styles.searchInput}
-        />
+      {/* Toolbar */}
+      <div className={styles.toolbar}>
+        <div className={styles.toolbarLeft}>
+          <h2 className={styles.sectionTitle}>
+            Your Notes ({filteredNotes.length})
+          </h2>
+          <input
+            type="text"
+            placeholder="Search notes..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.searchInput}
+          />
+        </div>
+        <button 
+          onClick={openCreateModal}
+          className={styles.createNoteButton}
+          data-tooltip="Create New Note"
+        >
+          +
+        </button>
       </div>
-
-      {/* Create Note Button */}
-      <button 
-        onClick={openCreateModal}
-        className={styles.createNoteButton}
-      >
-        ➕ Create New Note
-      </button>
 
       {/* Notes Table */}
       <div className={styles.notesSection}>
-        <h2 className={styles.sectionTitle}>
-          📚 Your Notes ({filteredNotes.length})
-        </h2>
         
         {filteredNotes.length === 0 ? (
           <div className={styles.emptyState}>
-            <p>No notes found. Create your first note above! 📝</p>
+            <p>No notes found. Create your first note above.</p>
           </div>
         ) : (
           <div className={styles.notesTable}>
@@ -197,21 +198,27 @@ export default function Home() {
                       className={`${styles.actionButton} ${styles.viewButton}`}
                       title="View note"
                     >
-                      👁️
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                      </svg>
                     </button>
                     <button
                       onClick={() => startEdit(note)}
                       className={`${styles.actionButton} ${styles.editButton}`}
                       title="Edit note"
                     >
-                      ✏️
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                      </svg>
                     </button>
                     <button
                       onClick={() => remove(note.id)}
                       className={`${styles.actionButton} ${styles.deleteButton}`}
                       title="Delete note"
                     >
-                      🗑️
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                      </svg>
                     </button>
                   </div>
                 </div>
@@ -247,7 +254,7 @@ export default function Home() {
                 onClick={() => startEdit(viewingNote)}
                 className={styles.primaryButton}
               >
-                ✏️ Edit Note
+                Edit Note
               </button>
             </div>
           </div>
@@ -259,9 +266,9 @@ export default function Home() {
         <div className={styles.modal} onClick={closeCreateModal}>
           <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>✨ Create New Note</h2>
+              <h2 className={styles.modalTitle}>Create New Note</h2>
               <button onClick={closeCreateModal} className={styles.closeButton}>
-                ❌
+                ✕
               </button>
             </div>
             <form onSubmit={add} className={styles.modalForm}>
@@ -288,7 +295,7 @@ export default function Home() {
                   Cancel
                 </button>
                 <button type="submit" className={styles.primaryButton}>
-                  ➕ Create Note
+                  Create Note
                 </button>
               </div>
             </form>
@@ -301,9 +308,9 @@ export default function Home() {
         <div className={styles.modal} onClick={cancelEdit}>
           <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>✏️ Edit Note</h2>
+              <h2 className={styles.modalTitle}>Edit Note</h2>
               <button onClick={cancelEdit} className={styles.closeButton}>
-                ❌
+                ✕
               </button>
             </div>
             <form onSubmit={update} className={styles.modalForm}>
@@ -328,7 +335,7 @@ export default function Home() {
                   Cancel
                 </button>
                 <button type="submit" className={styles.primaryButton}>
-                  💾 Save Changes
+                  Save Changes
                 </button>
               </div>
             </form>

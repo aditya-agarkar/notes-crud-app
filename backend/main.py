@@ -6,20 +6,36 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 # Load environment variables from .env (local dev only)
-load_dotenv()
+# In production (Fly.io), secrets are set as environment variables directly
+try:
+    load_dotenv()
+except:
+    pass  # Ignore if .env doesn't exist in production
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
-print("SUPABASE_URL:", SUPABASE_URL)
-print("SUPABASE_SERVICE_ROLE_KEY:", SUPABASE_KEY[:6] + "..." if SUPABASE_KEY else None)
+print(f"SUPABASE_URL: {SUPABASE_URL}")
+print(f"SUPABASE_KEY: {SUPABASE_KEY[:6] + '...' if SUPABASE_KEY else 'None'}")
+print(f"PORT: {os.getenv('PORT', '8080')}")
+print("Starting app...")
 
 if not SUPABASE_URL or not SUPABASE_KEY:
+    print("ERROR: Missing Supabase credentials!")
     raise RuntimeError("Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables")
 
-sb: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+try:
+    sb: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    print("Supabase client created successfully")
+except Exception as e:
+    print(f"ERROR creating Supabase client: {e}")
+    raise
 
 app = FastAPI(title="Notes API")
+
+@app.get("/")
+async def root():
+    return {"message": "Notes API is running!"}
 
 # Allow frontend to call backend (CORS)
 origins = [os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")]

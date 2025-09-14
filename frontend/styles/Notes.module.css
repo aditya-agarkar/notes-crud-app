@@ -8,45 +8,63 @@
 
 /* Header Section */
 .header {
-  text-align: center;
-  margin-bottom: 2rem;
-  padding: 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 15px;
+  background: #1a1a1a;
   color: white;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  margin-bottom: 1.5rem;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 6px;
 }
 
 .title {
-  font-size: 2.5rem;
-  margin: 0 0 0.5rem 0;
-  font-weight: bold;
+  font-size: 1.5rem;
+  margin: 0 0 0.25rem 0;
+  font-weight: 600;
+  color: white;
 }
 
 .subtitle {
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   margin: 0;
-  opacity: 0.9;
+  color: #a0a0a0;
+  font-weight: 400;
 }
 
-/* Search Section */
-.searchContainer {
-  margin-bottom: 2rem;
+/* Toolbar Section */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.sectionTitle {
+  color: #2d3748;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .searchInput {
-  width: 100%;
-  padding: 12px 20px;
-  font-size: 16px;
-  border: 2px solid #e2e8f0;
-  border-radius: 25px;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
   outline: none;
-  transition: border-color 0.3s ease;
-  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+  width: 300px;
 }
 
 .searchInput:focus {
-  border-color: #4299e1;
+  border-color: #0066cc;
 }
 
 /* Form Section */
@@ -101,35 +119,35 @@
 
 /* Buttons */
 .primaryButton {
-  background-color: #4299e1;
+  background-color: #0066cc;
   color: white;
   padding: 12px 24px;
   border: none;
-  border-radius: 8px;
+  border-radius: 0;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.2s ease;
 }
 
 .primaryButton:hover {
-  background-color: #3182ce;
+  background-color: #0052a3;
 }
 
 .secondaryButton {
-  background-color: #e2e8f0;
-  color: #4a5568;
+  background-color: #e0e0e0;
+  color: #333;
   padding: 12px 24px;
   border: none;
-  border-radius: 8px;
+  border-radius: 0;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.2s ease;
 }
 
 .secondaryButton:hover {
-  background-color: #cbd5e0;
+  background-color: #cccccc;
 }
 
 /* Notes Section */
@@ -161,7 +179,7 @@
 }
 
 .tableHeader {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #1a1a1a;
   color: white;
   display: grid;
   grid-template-columns: 2fr 3fr 150px 120px;
@@ -171,6 +189,7 @@
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  border-radius: 6px 6px 0 0;
 }
 
 .tableBody {
@@ -219,25 +238,48 @@
 
 /* Create Note Button */
 .createNoteButton {
-  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  background: #0066cc;
   color: white;
   border: none;
-  border-radius: 12px;
-  padding: 1rem 2rem;
-  font-size: 1.1rem;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(72, 187, 120, 0.3);
-  margin-bottom: 2rem;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  position: relative;
 }
 
 .createNoteButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(72, 187, 120, 0.4);
+  background: #0052a3;
+  transform: scale(1.05);
+}
+
+.createNoteButton::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+
+.createNoteButton:hover::before {
+  opacity: 1;
+  visibility: visible;
 }
 
 /* Note Actions */
@@ -247,40 +289,31 @@
 }
 
 .actionButton {
-  color: white;
+  background: none;
   border: none;
-  border-radius: 6px;
-  padding: 6px 10px;
+  color: #666;
+  padding: 6px;
   cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s ease;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
 }
 
-.viewButton {
-  background-color: #48bb78;
+.actionButton:hover {
+  background-color: #f0f0f0;
+  color: #0066cc;
 }
 
-.viewButton:hover {
-  background-color: #38a169;
-  transform: scale(1.05);
-}
-
-.editButton {
-  background-color: #ed8936;
-}
-
-.editButton:hover {
-  background-color: #dd6b20;
-  transform: scale(1.05);
-}
-
-.deleteButton {
-  background-color: #f56565;
-}
-
-.deleteButton:hover {
-  background-color: #e53e3e;
-  transform: scale(1.05);
+.viewButton svg,
+.editButton svg,
+.deleteButton svg {
+  width: 16px;
+  height: 16px;
 }
 
 /* Note Content */
@@ -404,8 +437,26 @@
     padding: 10px;
   }
   
-  .title {
-    font-size: 2rem;
+  .toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .toolbarLeft {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  
+  .searchInput {
+    width: 100%;
+    max-width: none;
+  }
+  
+  .sectionTitle {
+    font-size: 1.2rem;
   }
   
   .tableHeader,

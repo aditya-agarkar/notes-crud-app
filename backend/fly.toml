@@ -1,15 +1,26 @@
-app = "my-fastapi-notes"
-kill_signal = "SIGINT"
+# fly.toml app configuration file generated for aditya-notes-api on 2025-09-13T16:43:05-07:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'aditya-notes-api'
+primary_region = 'sjc'
+kill_signal = 'SIGINT'
+
+[build]
 
 [env]
-PORT = "8080"
+  PORT = '8080'
 
-[[services]]
+[http_service]
   internal_port = 8080
-  protocol = "tcp"
-  [[services.ports]]
-    handlers = ["http"]
-    port = 80
-  [[services.ports]]
-    handlers = ["tls"]
-    port = 443
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
