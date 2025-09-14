@@ -54,6 +54,9 @@ function TagInput({ tags, setTags, availableTags }) {
       }
     } else if (e.key === 'Backspace' && !inputValue && tags.length > 0) {
       removeTag(tags[tags.length - 1]);
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+      setInputValue("");
     }
   };
 

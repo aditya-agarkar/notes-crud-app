@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from typing import Optional, List
 from supabase import create_client, Client
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -49,8 +50,8 @@ app.add_middleware(
 
 class NoteIn(BaseModel):
     title: str
-    content: str | None = None
-    tags: list[str] = []
+    content: Optional[str] = None
+    tags: List[str] = []
 
 class Tag(BaseModel):
     id: int
@@ -125,7 +126,7 @@ async def create_note(payload: NoteIn):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-async def _associate_tags_with_note(note_id: int, tag_names: list[str]):
+async def _associate_tags_with_note(note_id: int, tag_names: List[str]):
     """Associate tags with a note, creating tags if they don't exist"""
     for tag_name in tag_names:
         if not tag_name.strip():
