@@ -36,6 +36,8 @@ function TagInput({ tags, setTags, availableTags }) {
   const addTag = (tagName) => {
     const trimmed = tagName.trim().toLowerCase();
     if (trimmed && !tags.includes(trimmed)) {
+      console.log('Adding tag:', trimmed);
+      console.log('Current tags:', tags);
       setTags([...tags, trimmed]);
     }
     setInputValue("");
@@ -114,6 +116,13 @@ export default function Home() {
   const [tags, setTags] = useState([]);
   const [availableTags, setAvailableTags] = useState([]);
 
+  // Debug: Log API URL on component mount
+  console.log('API URL:', API);
+  console.log('Environment variables:', {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    NODE_ENV: process.env.NODE_ENV
+  });
+
   async function load() {
     try {
       const res = await fetch(`${API}/notes`);
@@ -146,10 +155,14 @@ export default function Home() {
     if (!title.trim()) return;
     
     try {
+      const payload = { title: title.trim(), content: content.trim(), tags: tags };
+      console.log('Creating note with API:', API);
+      console.log('Payload being sent:', payload);
+      
       const res = await fetch(`${API}/notes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: title.trim(), content: content.trim(), tags: tags })
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
         setTitle(""); 
@@ -169,14 +182,18 @@ export default function Home() {
     if (!editingNote || !editingNote.title.trim()) return;
     
     try {
+      const payload = { 
+        title: editingNote.title.trim(), 
+        content: editingNote.content.trim(),
+        tags: editingNote.tags || []
+      };
+      console.log('Updating note with API:', API);
+      console.log('Update payload being sent:', payload);
+      
       const res = await fetch(`${API}/notes/${editingNote.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          title: editingNote.title.trim(), 
-          content: editingNote.content.trim(),
-          tags: editingNote.tags || []
-        })
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
         setEditingNote(null);
