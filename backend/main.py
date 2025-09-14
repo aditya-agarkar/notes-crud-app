@@ -113,44 +113,65 @@ async def get_note_with_tags(note_id: int):
 @app.post("/notes", status_code=201)
 async def create_note(payload: NoteIn):
     try:
+        print(f"📝 Creating note with payload: {payload}")
+        
         # Create the note
         note_data = {"title": payload.title, "content": payload.content}
         resp = sb.table("notes").insert(note_data).execute()
         note = resp.data[0]
+        print(f"✅ Note created with ID: {note['id']}")
         
         # Handle tags
         if payload.tags:
+            print(f"🏷️ Note has {len(payload.tags)} tags: {payload.tags}")
             await _associate_tags_with_note(note['id'], payload.tags)
+        else:
+            print("📝 No tags to process")
             
-        return await get_note_with_tags(note['id'])
+        result = await get_note_with_tags(note['id'])
+        print(f"📤 Returning note with tags: {result}")
+        return result
     except Exception as e:
+        print(f"❌ Error creating note: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
 async def _associate_tags_with_note(note_id: int, tag_names: List[str]):
     """Associate tags with a note, creating tags if they don't exist"""
+    print(f"🏷️ Processing tags for note {note_id}: {tag_names}")
+    
     for tag_name in tag_names:
         if not tag_name.strip():
+            print(f"⚠️ Skipping empty tag")
             continue
             
         tag_name = tag_name.strip().lower()
+        print(f"📝 Processing tag: '{tag_name}'")
         
-        # Get or create tag
-        existing_tag = sb.table("tags").select("id").eq("name", tag_name).execute()
-        
-        if existing_tag.data:
-            tag_id = existing_tag.data[0]['id']
-        else:
-            new_tag = sb.table("tags").insert({"name": tag_name}).execute()
-            tag_id = new_tag.data[0]['id']
-        
-        # Create note-tag association (ignore if already exists)
         try:
-            sb.table("note_tags").insert({
+            # Get or create tag
+            existing_tag = sb.table("tags").select("id").eq("name", tag_name).execute()
+            print(f"🔍 Existing tag query result: {existing_tag.data}")
+            
+            if existing_tag.data:
+                tag_id = existing_tag.data[0]['id']
+                print(f"✅ Found existing tag with ID: {tag_id}")
+            else:
+                print(f"🆕 Creating new tag: '{tag_name}'")
+                new_tag = sb.table("tags").insert({"name": tag_name}).execute()
+                print(f"✅ Created tag: {new_tag.data}")
+                tag_id = new_tag.data[0]['id']
+            
+            # Create note-tag association
+            print(f"🔗 Creating association: note_id={note_id}, tag_id={tag_id}")
+            association = sb.table("note_tags").insert({
                 "note_id": note_id, 
                 "tag_id": tag_id
             }).execute()
-        except:
-            pass  # Ignore duplicate associations
+            print(f"✅ Association created: {association.data}")
+            
+        except Exception as e:
+            print(f"❌ Error processing tag '{tag_name}': {str(e)}")
+            # Don't silently ignore errors - let's see what's happening
 
 @app.put("/notes/{note_id}")
 async def update_note(note_id: int, payload: NoteIn):
