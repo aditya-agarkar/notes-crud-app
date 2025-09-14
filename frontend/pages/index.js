@@ -1,13 +1,33 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useImperativeHandle, forwardRef } from "react";
 import styles from '../styles/Notes.module.css';
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 // TagInput Component
-function TagInput({ tags, setTags, availableTags }) {
+const TagInput = forwardRef(({ tags, setTags, availableTags }, ref) => {
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Function to commit any pending input and return updated tags
+  const commitPendingInput = () => {
+    if (inputValue.trim()) {
+      const trimmed = inputValue.trim().toLowerCase();
+      if (trimmed && !tags.includes(trimmed)) {
+        const newTags = [...tags, trimmed];
+        setTags(newTags);
+        setInputValue("");
+        setShowSuggestions(false);
+        return newTags; // Return the new tags array
+      }
+    }
+    return tags; // Return current tags if nothing was added
+  };
+
+  // Expose the commit function to parent component
+  useImperativeHandle(ref, () => ({
+    commitPendingInput
+  }));
 
   const fetchSuggestions = async (query) => {
     try {
@@ -35,8 +55,13 @@ function TagInput({ tags, setTags, availableTags }) {
 
   const addTag = (tagName) => {
     const trimmed = tagName.trim().toLowerCase();
+    console.log('🏷️ Adding tag:', trimmed, 'Current tags:', tags);
     if (trimmed && !tags.includes(trimmed)) {
-      setTags([...tags, trimmed]);
+      const newTags = [...tags, trimmed];
+      console.log('✅ Setting new tags:', newTags);
+      setTags(newTags);
+    } else {
+      console.log('❌ Tag not added - empty or duplicate');
     }
     setInputValue("");
     setShowSuggestions(false);
@@ -49,8 +74,11 @@ function TagInput({ tags, setTags, availableTags }) {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      console.log('⌨️ Enter pressed, input value:', inputValue);
       if (inputValue.trim()) {
         addTag(inputValue);
+      } else {
+        console.log('❌ Input value is empty');
       }
     } else if (e.key === 'Backspace' && !inputValue && tags.length > 0) {
       removeTag(tags[tags.length - 1]);
@@ -101,7 +129,7 @@ function TagInput({ tags, setTags, availableTags }) {
       )}
     </div>
   );
-}
+});
 
 export default function Home() {
   const [notes, setNotes] = useState([]);
@@ -113,6 +141,10 @@ export default function Home() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [tags, setTags] = useState([]);
   const [availableTags, setAvailableTags] = useState([]);
+  
+  // Ref for TagInput to commit pending input
+  const createTagInputRef = useRef();
+  const editTagInputRef = useRef();
 
 
   async function load() {
@@ -146,28 +178,54 @@ export default function Home() {
     e.preventDefault();
     if (!title.trim()) return;
     
+    // Commit any pending tag input before submitting
+    let finalTags = tags;
+    if (createTagInputRef.current) {
+      finalTags = createTagInputRef.current.commitPendingInput();
+      console.log('🏷️ Final tags after commit:', finalTags);
+    }
+    
     try {
+      const payload = { title: title.trim(), content: content.trim(), tags: finalTags };
+      console.log('🚀 Creating note with payload:', payload);
+      console.log('🔗 API URL:', API);
+      console.log('📦 JSON body being sent:', JSON.stringify(payload));
+      
       const res = await fetch(`${API}/notes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: title.trim(), content: content.trim(), tags: tags })
+        body: JSON.stringify(payload)
       });
+      
+      console.log('📡 Response status:', res.status);
+      const responseData = await res.json();
+      console.log('📨 Response data:', responseData);
       if (res.ok) {
+        console.log('✅ Note created successfully');
         setTitle(""); 
         setContent("");
         setTags([]);
         setShowCreateModal(false);
         load();
         loadTags();
+      } else {
+        console.log('❌ Failed to create note:', responseData);
       }
     } catch (error) {
-      console.error("Failed to add note:", error);
+      console.error("❌ Network error:", error);
     }
   }
 
   async function update(e) {
     e.preventDefault();
     if (!editingNote || !editingNote.title.trim()) return;
+    
+    // Commit any pending tag input before submitting
+    let finalEditTags = editingNote.tags || [];
+    if (editTagInputRef.current) {
+      finalEditTags = editTagInputRef.current.commitPendingInput();
+      console.log('🏷️ Final edit tags after commit:', finalEditTags);
+    }
     
     try {
       const res = await fetch(`${API}/notes/${editingNote.id}`, {
@@ -176,7 +234,7 @@ export default function Home() {
         body: JSON.stringify({ 
           title: editingNote.title.trim(), 
           content: editingNote.content.trim(),
-          tags: editingNote.tags || []
+          tags: finalEditTags
         })
       });
       if (res.ok) {
@@ -428,8 +486,16 @@ export default function Home() {
                 rows="6"
               />
               <div>
-                <label className={styles.label}>Tags</label>
-                <TagInput tags={tags} setTags={setTags} availableTags={availableTags} />
+                <label className={styles.label}>Tags ({tags.length})</label>
+                <TagInput 
+                  ref={createTagInputRef}
+                  tags={tags} 
+                  setTags={setTags} 
+                  availableTags={availableTags} 
+                />
+                <small style={{color: '#666', fontSize: '12px'}}>
+                  Current tags: {tags.length === 0 ? 'None' : tags.join(', ')}
+                </small>
               </div>
               <div className={styles.modalActions}>
                 <button 
@@ -474,6 +540,7 @@ export default function Home() {
               <div>
                 <label className={styles.label}>Tags</label>
                 <TagInput 
+                  ref={editTagInputRef}
                   tags={editingNote.tags || []} 
                   setTags={(newTags) => setEditingNote({...editingNote, tags: newTags})} 
                   availableTags={availableTags} 
