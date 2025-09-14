@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from '../styles/Notes.module.css';
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -49,10 +49,14 @@ function TagInput({ tags, setTags, availableTags }) {
   };
 
   const handleKeyDown = (e) => {
+    console.log('Key pressed:', e.key, 'Input value:', inputValue);
     if (e.key === 'Enter') {
       e.preventDefault();
+      console.log('Enter pressed, trying to add tag:', inputValue);
       if (inputValue.trim()) {
         addTag(inputValue);
+      } else {
+        console.log('Input value is empty, not adding tag');
       }
     } else if (e.key === 'Backspace' && !inputValue && tags.length > 0) {
       removeTag(tags[tags.length - 1]);
@@ -446,6 +450,16 @@ export default function Home() {
               <div>
                 <label className={styles.label}>Tags</label>
                 <TagInput tags={tags} setTags={setTags} availableTags={availableTags} />
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    console.log('Test button clicked, current tags:', tags);
+                    setTags([...tags, 'test-tag-' + Date.now()]);
+                  }}
+                  style={{marginTop: '8px', padding: '4px 8px', fontSize: '12px'}}
+                >
+                  Test Add Tag
+                </button>
               </div>
               <div className={styles.modalActions}>
                 <button 
