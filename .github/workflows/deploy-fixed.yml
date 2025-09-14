@@ -25,9 +25,10 @@ jobs:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
       
       - name: Deploy to Fly.io
-        run: flyctl deploy --remote-only -a aditya-notes-api
+        run: flyctl deploy --remote-only
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          FLY_APP: aditya-notes-api
 
   # Deploy Frontend to Vercel
   deploy-frontend:
