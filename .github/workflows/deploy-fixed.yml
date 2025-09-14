@@ -1,0 +1,48 @@
+name: Deploy to Production (Fixed)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  # Deploy Backend to Fly.io
+  deploy-backend:
+    name: Deploy Backend to Fly.io
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    defaults:
+      run:
+        working-directory: ./backend
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      
+      - name: List Fly apps
+        run: flyctl apps list
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      
+      - name: Deploy to Fly.io
+        run: flyctl deploy --remote-only -a aditya-notes-api
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+  # Deploy Frontend to Vercel
+  deploy-frontend:
+    name: Deploy Frontend to Vercel
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./frontend
+          vercel-args: '--prod'
