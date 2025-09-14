@@ -3,6 +3,103 @@ import styles from '../styles/Notes.module.css';
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+// TagInput Component
+function TagInput({ tags, setTags, availableTags }) {
+  const [inputValue, setInputValue] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const fetchSuggestions = async (query) => {
+    try {
+      const res = await fetch(`${API}/tags/suggestions?q=${encodeURIComponent(query)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSuggestions(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch tag suggestions:", error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setInputValue(value);
+    
+    if (value.trim()) {
+      fetchSuggestions(value);
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  const addTag = (tagName) => {
+    const trimmed = tagName.trim().toLowerCase();
+    if (trimmed && !tags.includes(trimmed)) {
+      setTags([...tags, trimmed]);
+    }
+    setInputValue("");
+    setShowSuggestions(false);
+  };
+
+  const removeTag = (tagToRemove) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (inputValue.trim()) {
+        addTag(inputValue);
+      }
+    } else if (e.key === 'Backspace' && !inputValue && tags.length > 0) {
+      removeTag(tags[tags.length - 1]);
+    }
+  };
+
+  return (
+    <div className={styles.tagInputContainer}>
+      <div className={styles.tagList}>
+        {tags.map((tag, index) => (
+          <span key={index} className={styles.tag}>
+            {tag}
+            <button
+              type="button"
+              onClick={() => removeTag(tag)}
+              className={styles.tagRemove}
+            >
+              ×
+            </button>
+          </span>
+        ))}
+        <input
+          type="text"
+          value={inputValue}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          placeholder={tags.length === 0 ? "Add tags..." : ""}
+          className={styles.tagInput}
+        />
+      </div>
+      
+      {showSuggestions && suggestions.length > 0 && (
+        <div className={styles.tagSuggestions}>
+          {suggestions.map((suggestion, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => addTag(suggestion.name)}
+              className={styles.tagSuggestion}
+            >
+              {suggestion.name}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Home() {
   const [notes, setNotes] = useState([]);
   const [title, setTitle] = useState("");
@@ -11,6 +108,8 @@ export default function Home() {
   const [viewingNote, setViewingNote] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [tags, setTags] = useState([]);
+  const [availableTags, setAvailableTags] = useState([]);
 
   async function load() {
     try {
@@ -23,7 +122,21 @@ export default function Home() {
     }
   }
 
-  useEffect(() => { load(); }, []);
+  async function loadTags() {
+    try {
+      const res = await fetch(`${API}/tags`);
+      if (res.ok) {
+        setAvailableTags(await res.json());
+      }
+    } catch (error) {
+      console.error("Failed to load tags:", error);
+    }
+  }
+
+  useEffect(() => { 
+    load(); 
+    loadTags();
+  }, []);
 
   async function add(e) {
     e.preventDefault();
@@ -33,13 +146,15 @@ export default function Home() {
       const res = await fetch(`${API}/notes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: title.trim(), content: content.trim() })
+        body: JSON.stringify({ title: title.trim(), content: content.trim(), tags: tags })
       });
       if (res.ok) {
         setTitle(""); 
         setContent("");
+        setTags([]);
         setShowCreateModal(false);
         load();
+        loadTags();
       }
     } catch (error) {
       console.error("Failed to add note:", error);
@@ -56,12 +171,14 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           title: editingNote.title.trim(), 
-          content: editingNote.content.trim() 
+          content: editingNote.content.trim(),
+          tags: editingNote.tags || []
         })
       });
       if (res.ok) {
         setEditingNote(null);
         load();
+        loadTags();
       }
     } catch (error) {
       console.error("Failed to update note:", error);
@@ -82,7 +199,7 @@ export default function Home() {
   }
 
   function startEdit(note) {
-    setEditingNote({...note});
+    setEditingNote({...note, tags: note.tags ? note.tags.map(t => t.name) : []});
     setViewingNote(null);
     setShowCreateModal(false);
   }
@@ -103,18 +220,24 @@ export default function Home() {
     setViewingNote(null);
     setTitle("");
     setContent("");
+    setTags([]);
   }
 
   function closeCreateModal() {
     setShowCreateModal(false);
     setTitle("");
     setContent("");
+    setTags([]);
   }
 
-  const filteredNotes = notes.filter(note => 
-    note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    note.content?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredNotes = notes.filter(note => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      note.title.toLowerCase().includes(searchLower) ||
+      note.content?.toLowerCase().includes(searchLower) ||
+      (note.tags && note.tags.some(tag => tag.name.toLowerCase().includes(searchLower)))
+    );
+  });
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -141,7 +264,7 @@ export default function Home() {
           </h2>
           <input
             type="text"
-            placeholder="Search notes..."
+            placeholder="Search notes, content, or tags..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={styles.searchInput}
@@ -168,6 +291,7 @@ export default function Home() {
             <div className={styles.tableHeader}>
               <div>Title</div>
               <div>Content</div>
+              <div>Tags</div>
               <div>Created</div>
               <div>Actions</div>
             </div>
@@ -186,6 +310,19 @@ export default function Home() {
                         : "No content"
                       }
                     </p>
+                  </div>
+                  <div>
+                    <div className={styles.noteTags}>
+                      {note.tags && note.tags.length > 0 ? (
+                        note.tags.map((tag, index) => (
+                          <span key={index} className={styles.noteTag}>
+                            {tag.name}
+                          </span>
+                        ))
+                      ) : (
+                        <span className={styles.noTags}>No tags</span>
+                      )}
+                    </div>
                   </div>
                   <div>
                     <span className={styles.noteDate}>
@@ -286,6 +423,10 @@ export default function Home() {
                 className={styles.textarea}
                 rows="6"
               />
+              <div>
+                <label className={styles.label}>Tags</label>
+                <TagInput tags={tags} setTags={setTags} availableTags={availableTags} />
+              </div>
               <div className={styles.modalActions}>
                 <button 
                   type="button" 
@@ -326,6 +467,14 @@ export default function Home() {
                 className={styles.textarea}
                 rows="6"
               />
+              <div>
+                <label className={styles.label}>Tags</label>
+                <TagInput 
+                  tags={editingNote.tags || []} 
+                  setTags={(newTags) => setEditingNote({...editingNote, tags: newTags})} 
+                  availableTags={availableTags} 
+                />
+              </div>
               <div className={styles.modalActions}>
                 <button 
                   type="button" 

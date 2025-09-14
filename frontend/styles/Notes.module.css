@@ -8,7 +8,7 @@
 
 /* Header Section */
 .header {
-  background: #1a1a1a;
+  background: #1e3a8a;
   color: white;
   margin-bottom: 1.5rem;
   padding: 1rem 2rem;
@@ -36,6 +36,7 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1rem;
+  margin-top: 10px;
   gap: 1rem;
 }
 
@@ -179,17 +180,17 @@
 }
 
 .tableHeader {
-  background: #1a1a1a;
+  background: #1e3a8a;
   color: white;
   display: grid;
-  grid-template-columns: 2fr 3fr 150px 120px;
+  grid-template-columns: 2fr 3fr 1.5fr 120px 120px;
   gap: 20px;
   padding: 1rem 1.5rem;
   font-weight: 600;
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border-radius: 6px 6px 0 0;
+  border-radius: 6px;
 }
 
 .tableBody {
@@ -199,7 +200,7 @@
 
 .tableRow {
   display: grid;
-  grid-template-columns: 2fr 3fr 150px 120px;
+  grid-template-columns: 2fr 3fr 1.5fr 120px 120px;
   gap: 20px;
   padding: 1rem 1.5rem;
   border-bottom: 1px solid #e2e8f0;
@@ -291,7 +292,7 @@
 .actionButton {
   background: none;
   border: none;
-  color: #666;
+  color: #1e3a8a;
   padding: 6px;
   cursor: pointer;
   font-size: 16px;
@@ -306,7 +307,7 @@
 
 .actionButton:hover {
   background-color: #f0f0f0;
-  color: #0066cc;
+  color: #1e40af;
 }
 
 .viewButton svg,
@@ -429,6 +430,137 @@
   justify-content: flex-end;
   padding: 1.5rem;
   border-top: 1px solid #e2e8f0;
+}
+
+/* Tag Styles */
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 14px;
+}
+
+.tagInputContainer {
+  position: relative;
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 8px 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  min-height: 42px;
+  background: white;
+}
+
+.tagList:focus-within {
+  border-color: #4299e1;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  background: #0066cc;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  gap: 4px;
+}
+
+.tagRemove {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+}
+
+.tagRemove:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.tagInput {
+  border: none;
+  outline: none;
+  flex: 1;
+  min-width: 120px;
+  padding: 4px 0;
+  font-size: 14px;
+  background: transparent;
+}
+
+.tagInput::placeholder {
+  color: #a0aec0;
+}
+
+.tagSuggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.tagSuggestion {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #2d3748;
+  border-bottom: 1px solid #f7fafc;
+}
+
+.tagSuggestion:hover {
+  background: #f7fafc;
+}
+
+.tagSuggestion:last-child {
+  border-bottom: none;
+}
+
+.noteTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.noteTag {
+  background: #e2e8f0;
+  color: #2d3748;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.noTags {
+  color: #a0aec0;
+  font-size: 12px;
+  font-style: italic;
 }
 
 /* Responsive Design */
