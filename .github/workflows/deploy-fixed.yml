@@ -19,16 +19,15 @@ jobs:
       
       - uses: superfly/flyctl-actions/setup-flyctl@master
       
-      - name: List Fly apps
-        run: flyctl apps list
+      - name: Check Fly app status
+        run: flyctl status --app aditya-notes-api
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
       
       - name: Deploy to Fly.io
-        run: flyctl deploy --remote-only
+        run: flyctl deploy --remote-only --app aditya-notes-api
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-          FLY_APP: aditya-notes-api
 
   # Deploy Frontend to Vercel
   deploy-frontend:
