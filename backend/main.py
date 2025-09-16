@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 # In production (Fly.io), secrets are set as environment variables directly
 try:
     load_dotenv()
-except:
+except Exception:
     pass  # Ignore if .env doesn't exist in production
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -23,7 +23,9 @@ print("Starting app...")
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     print("ERROR: Missing Supabase credentials!")
-    raise RuntimeError("Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables")
+    raise RuntimeError(
+        "Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables"
+    )
 
 try:
     sb: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -33,6 +35,7 @@ except Exception as e:
     raise
 
 app = FastAPI(title="Notes API")
+
 
 @app.get("/")
 async def root():
@@ -48,15 +51,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 class NoteIn(BaseModel):
     title: str
     content: Optional[str] = None
     tags: List[str] = []
 
+
 class Tag(BaseModel):
     id: int
     name: str
     color: str
+
 
 @app.get("/notes")
 async def list_notes():
@@ -68,25 +74,29 @@ async def list_notes():
                 tags(id, name, color)
             )
         """).order("created_at", desc=True).execute()
-        
+
         # Format the response to include tags array
         notes = []
         for note in resp.data:
             note_data = {**note}
-            note_data['tags'] = [nt['tags'] for nt in note.get('note_tags', [])]
+            note_data['tags'] = [
+                nt['tags'] for nt in note.get('note_tags', [])
+            ]
             note_data.pop('note_tags', None)
             notes.append(note_data)
-            
+
         return notes
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/notes/{note_id}")
 async def get_note(note_id: int):
     try:
         return await get_note_with_tags(note_id)
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=404, detail="Not found")
+
 
 async def get_note_with_tags(note_id: int):
     """Get a single note with its tags"""
@@ -97,37 +107,40 @@ async def get_note_with_tags(note_id: int):
                 tags(id, name, color)
             )
         """).eq("id", note_id).single().execute()
-        
+
         if not resp.data:
             raise HTTPException(status_code=404, detail="Note not found")
-        
+
         # Format the response to include tags array
         note_data = {**resp.data}
-        note_data['tags'] = [nt['tags'] for nt in resp.data.get('note_tags', [])]
+        note_data['tags'] = [
+            nt['tags'] for nt in resp.data.get('note_tags', [])
+        ]
         note_data.pop('note_tags', None)
-        
+
         return note_data
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=404, detail="Not found")
+
 
 @app.post("/notes", status_code=201)
 async def create_note(payload: NoteIn):
     try:
         print(f"📝 Creating note with payload: {payload}")
-        
+
         # Create the note
         note_data = {"title": payload.title, "content": payload.content}
         resp = sb.table("notes").insert(note_data).execute()
         note = resp.data[0]
         print(f"✅ Note created with ID: {note['id']}")
-        
+
         # Handle tags
         if payload.tags:
             print(f"🏷️ Note has {len(payload.tags)} tags: {payload.tags}")
             await _associate_tags_with_note(note['id'], payload.tags)
         else:
             print("📝 No tags to process")
-            
+
         result = await get_note_with_tags(note['id'])
         print(f"📤 Returning note with tags: {result}")
         return result
@@ -135,23 +148,26 @@ async def create_note(payload: NoteIn):
         print(f"❌ Error creating note: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
+
 async def _associate_tags_with_note(note_id: int, tag_names: List[str]):
     """Associate tags with a note, creating tags if they don't exist"""
     print(f"🏷️ Processing tags for note {note_id}: {tag_names}")
-    
+
     for tag_name in tag_names:
         if not tag_name.strip():
-            print(f"⚠️ Skipping empty tag")
+            print("⚠️ Skipping empty tag")
             continue
-            
+
         tag_name = tag_name.strip().lower()
         print(f"📝 Processing tag: '{tag_name}'")
-        
+
         try:
             # Get or create tag
-            existing_tag = sb.table("tags").select("id").eq("name", tag_name).execute()
+            existing_tag = sb.table("tags").select("id").eq(
+                "name", tag_name
+            ).execute()
             print(f"🔍 Existing tag query result: {existing_tag.data}")
-            
+
             if existing_tag.data:
                 tag_id = existing_tag.data[0]['id']
                 print(f"✅ Found existing tag with ID: {tag_id}")
@@ -160,18 +176,21 @@ async def _associate_tags_with_note(note_id: int, tag_names: List[str]):
                 new_tag = sb.table("tags").insert({"name": tag_name}).execute()
                 print(f"✅ Created tag: {new_tag.data}")
                 tag_id = new_tag.data[0]['id']
-            
+
             # Create note-tag association
-            print(f"🔗 Creating association: note_id={note_id}, tag_id={tag_id}")
+            print(
+                f"🔗 Creating association: note_id={note_id}, tag_id={tag_id}"
+            )
             association = sb.table("note_tags").insert({
-                "note_id": note_id, 
+                "note_id": note_id,
                 "tag_id": tag_id
             }).execute()
             print(f"✅ Association created: {association.data}")
-            
+
         except Exception as e:
             print(f"❌ Error processing tag '{tag_name}': {str(e)}")
             # Don't silently ignore errors - let's see what's happening
+
 
 @app.put("/notes/{note_id}")
 async def update_note(note_id: int, payload: NoteIn):
@@ -179,35 +198,38 @@ async def update_note(note_id: int, payload: NoteIn):
         # Update the note (excluding tags from the update)
         note_data = {"title": payload.title, "content": payload.content}
         resp = sb.table("notes").update(note_data).eq("id", note_id).execute()
-        
+
         if not resp.data:
             raise HTTPException(status_code=404, detail="Note not found")
-        
+
         # Clear existing tag associations
         sb.table("note_tags").delete().eq("note_id", note_id).execute()
-        
+
         # Handle new tags
         if payload.tags:
             await _associate_tags_with_note(note_id, payload.tags)
-            
+
         # Return updated note with tags
         return await get_note_with_tags(note_id)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
 
 @app.delete("/notes/{note_id}", status_code=204)
 async def delete_note(note_id: int):
     try:
         # Delete note-tag associations first (cascade should handle this)
         sb.table("note_tags").delete().eq("note_id", note_id).execute()
-        
+
         # Delete the note
-        resp = sb.table("notes").delete().eq("id", note_id).execute()
+        sb.table("notes").delete().eq("id", note_id).execute()
         return {}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 # Tag management endpoints
+
+
 @app.get("/tags")
 async def list_tags():
     try:
@@ -215,6 +237,7 @@ async def list_tags():
         return resp.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/tags/suggestions")
 async def get_tag_suggestions(q: str = ""):
@@ -224,15 +247,20 @@ async def get_tag_suggestions(q: str = ""):
             # Return most used tags
             resp = sb.rpc("get_popular_tags", {"limit_count": 10}).execute()
             return resp.data if resp.data else []
-        
+
         # Search tags by name
-        resp = sb.table("tags").select("*").ilike("name", f"%{q.lower()}%").limit(10).execute()
+        resp = sb.table("tags").select("*").ilike(
+            "name", f"%{q.lower()}%"
+        ).limit(10).execute()
         return resp.data
-    except Exception as e:
+    except Exception:
         # Fallback to simple search
         try:
             resp = sb.table("tags").select("*").order("name").execute()
-            filtered = [tag for tag in resp.data if q.lower() in tag['name'].lower()][:10]
+            filtered = [
+                tag for tag in resp.data
+                if q.lower() in tag['name'].lower()
+            ][:10]
             return filtered
-        except:
+        except Exception:
             return []
