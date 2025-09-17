@@ -2,10 +2,26 @@ import React, { useEffect, useState, useRef, useImperativeHandle, forwardRef } f
 import styles from '../styles/Notes.module.css';
 
 // Automatically detect environment and use appropriate API URL
-const API = process.env.NEXT_PUBLIC_API_URL ||
-  (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-    ? "https://aditya-notes-api.fly.dev"
-    : "http://localhost:8000");
+const getApiUrl = () => {
+  // If environment variable is set, use it
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+
+  // For server-side rendering, default to production URL
+  if (typeof window === 'undefined') {
+    return "https://aditya-notes-api.fly.dev";
+  }
+
+  // For client-side, check hostname
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return "http://localhost:8000";
+  }
+
+  return "https://aditya-notes-api.fly.dev";
+};
+
+const API = getApiUrl();
 
 // TagInput Component
 const TagInput = forwardRef(({ tags, setTags, availableTags }, ref) => {

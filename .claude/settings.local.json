@@ -5,7 +5,8 @@
       "Bash(npx eslint:*)",
       "Bash(pip install:*)",
       "Bash(flake8:*)",
-      "Bash(autopep8:*)"
+      "Bash(autopep8:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
