@@ -1,7 +1,11 @@
 import React, { useEffect, useState, useRef, useImperativeHandle, forwardRef } from "react";
 import styles from '../styles/Notes.module.css';
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// Automatically detect environment and use appropriate API URL
+const API = process.env.NEXT_PUBLIC_API_URL ||
+  (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? "https://aditya-notes-api.fly.dev"
+    : "http://localhost:8000");
 
 // TagInput Component
 const TagInput = forwardRef(({ tags, setTags, availableTags }, ref) => {
